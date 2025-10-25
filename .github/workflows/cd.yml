@@ -1,44 +1,22 @@
-name: Deploy to EC2
+name: Django Deployment
 
 on:
-  workflow_run:
-    workflows: ["Django CI/CD"]
-    types: [completed]
+  workflow_dispatch:   # 수동 배포 가능
+  push:
+    branches: ["main"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    environment: production
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        ref: '${{ github.event.workflow_run.head_branch }}'
-
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy to EC2
-      env:
-        CR_PAT: ${{ secrets.CR_PAT }}
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          # Log in to GitHub Container Registry
-          echo ${{ env.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-          # Navigate to the project directory (adjust if your project is in a different location on EC2)
-          cd /home/${{ secrets.EC2_USER }}/AWS # Assuming project is in /home/ubuntu/AWS or /home/ec2-user/AWS
-
-          # Pull the latest Docker image
-          docker-compose pull
-
-          # Restart the application
-          docker-compose up -d
-
-          # Clean up old images (optional)
-          docker image prune -f
-        EOF
+      - name: EC2 ssh connection and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /your_project_path
+            docker-compose build
+            docker-compose down
+            docker-compose up -d
