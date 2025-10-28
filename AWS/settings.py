@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_yasg",
     # chat_bot
-    "chat",
+    "AWS.chat",
 ]
 
 MIDDLEWARE = [
