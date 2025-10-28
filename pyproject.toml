@@ -46,3 +46,7 @@ dev = [
 plugins = ["mypy_django_plugin.main"]
 ignore_missing_imports = true
 strict_optional = true
+
+[tool.django-stubs]
+django_settings_module = "AWS.settings"
+strict_settings = true

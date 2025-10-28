@@ -10,7 +10,7 @@ from .models import EmailVerification, User
 from .serializers import UserSerializer
 from .utils.email_token import confirm_email_token
 
-User = get_user_model()
+
 
 
 class SignUpView(generics.CreateAPIView):
