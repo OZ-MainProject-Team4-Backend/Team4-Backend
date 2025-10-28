@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     # 배포
     "drf_spectacular",
     "drf_yasg",
+    # chat_bot
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -119,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
