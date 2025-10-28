@@ -11,8 +11,6 @@ from .serializers import UserSerializer
 from .utils.email_token import confirm_email_token
 
 
-
-
 class SignUpView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
