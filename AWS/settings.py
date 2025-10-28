@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "AWS.users",
     "AWS.weather",
     "AWS.recommend",
+    "AWS.diary",
     # JWT
     "rest_framework",
     "rest_framework_simplejwt",
