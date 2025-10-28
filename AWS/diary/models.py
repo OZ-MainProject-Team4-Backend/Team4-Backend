@@ -25,7 +25,3 @@ class Diary(models.Model):
 
     def __str__(self):
         return str(self.date)
-
-
-
-
