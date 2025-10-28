@@ -16,6 +16,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -161,3 +162,6 @@ EMAIL_USE_TLS = False
 EMAIL_HOST_USER = "qkralstn8070@naver.com"
 EMAIL_HOST_PASSWORD = "GZT4HV1E33RH"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# chat_bot
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
