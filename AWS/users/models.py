@@ -1,4 +1,4 @@
-from datetime import timedelta  # 이 라인을 추가합니다.
+from datetime import timedelta
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -17,8 +17,10 @@ class User(models.Model):
     nickname = models.CharField(max_length=50, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     gender = models.CharField(max_length=10, blank=True, null=True)
+
     email_verified = models.BooleanField(default=False)
     deleted_at = models.DateTimeField(blank=True, null=True)
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -30,19 +32,14 @@ class User(models.Model):
     def __str__(self):
         return self.email
 
+    def soft_delete(self):
+        """Soft delete helper"""
+        self.deleted_at = timezone.now()
+        self.save()
 
-# 새로운 유저가 생성될 때 이메일 인증 토큰 생성 및 이메일 발송
-@receiver(post_save, sender=User)
-def send_verification_email_on_user_creation(sender, instance, created, **kwargs):
-    if created and not instance.email_verified:
-        # ERD에 email_verifications 테이블이 있으므로, 이메일 인증 토큰을 모델에 저장하도록 로직 변경
-        # 기존 generate_email_token은 그대로 사용하되, EmailVerification 객체를 생성하여 저장
-        token_code = generate_email_token(instance.email)
-        expires_at = timezone.now() + timedelta(hours=1)  # 1시간 후 만료
-        EmailVerification.objects.create(
-            user=instance, email=instance.email, code=token_code, expires_at=expires_at
-        )
-        send_verification_email(instance.email, token_code)
+    @property
+    def is_active(self):
+        return self.deleted_at is None
 
 
 class EmailVerification(models.Model):
@@ -103,3 +100,16 @@ class Token(models.Model):
 
     def __str__(self):
         return f"Token for {self.user.email}"
+
+
+# 새로운 유저가 생성될 때 이메일 인증 토큰 생성 및 이메일 발송
+@receiver(post_save, sender=User)
+def send_verification_email_on_user_creation(sender, instance, created, **kwargs):
+    if created and not instance.email_verified:
+        token_code = generate_email_token(instance.email)
+        token_code = (token_code or "")[:10]
+        expires_at = timezone.now() + timedelta(hours=1)  # 1시간 후 만료
+        EmailVerification.objects.create(
+            user=instance, email=instance.email, code=token_code, expires_at=expires_at
+        )
+        send_verification_email(instance.email, token_code)
