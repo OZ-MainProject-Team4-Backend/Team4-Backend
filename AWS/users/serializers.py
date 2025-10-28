@@ -63,3 +63,23 @@ class TokenSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["created_at"]
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, data):
+        if data["new_password"] != data["confirm_password"]:
+            raise serializers.ValidationError(
+                "새 비밀번호와 확인 비밀번호가 일치하지 않습니다."
+            )
+        # 비밀번호 복잡성 요구사항 추가 (예시)
+        if len(data["new_password"]) < 8:
+            raise serializers.ValidationError("비밀번호는 최소 8자 이상이어야 합니다.")
+        return data
