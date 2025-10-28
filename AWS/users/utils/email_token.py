@@ -1,6 +1,7 @@
 from django.conf import settings
-from itsdangerous import \
-    URLSafeTimedSerializer  # URLSafeTimeSerializer -> URLSafeTimedSerializer 변경
+from itsdangerous import (
+    URLSafeTimedSerializer,  # URLSafeTimeSerializer -> URLSafeTimedSerializer 변경
+)
 
 serializer = URLSafeTimedSerializer(settings.SECRET_KEY)  # 클래스 이름 변경
 

@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:13
@@ -26,25 +27,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
+
       - name: Install uv
         run: pip install uv
+
       - name: Install dependencies
         run: uv sync
-      - name: Run Black
-        run: uv run black --check .
-      - name: Run isort
-        run: uv run isort --check-only .
-      - name: Run Mypy
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U admin; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+
+      - name: 🧹 Code Format Check (isort + black)
+        run: |
+          uv run isort --check-only .
+          uv run black --check .
+
+      - name: 🧠 Type Check (mypy)
         run: uv run mypy .
-      - name: Run Pytest and Coverage
+
+      - name: ✅ Run Pytest and Coverage
         env:
           DATABASE_URL: postgres://admin:1234@localhost:5432/AWS
+          DJANGO_SETTINGS_MODULE: AWS.settings
         run: uv run pytest --cov=. --cov-report=xml
-      - name: Check Django Database Connection
+
+      - name: 🔎 Check Django Database Connection
         env:
           DATABASE_URL: postgres://admin:1234@localhost:5432/AWS
         run: python manage.py check --database default
