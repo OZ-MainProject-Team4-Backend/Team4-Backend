@@ -13,5 +13,3 @@ class AiChatlog(models.Model):
     class Meta:
         db_table = "ai_chat_logs"
         indexes = [models.Index(fields=["session_id", "created_at"], name="ai_logs")]
-
-
