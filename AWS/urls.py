@@ -44,5 +44,5 @@ urlpatterns = [
     path("api/users/", include("AWS.users.urls")),
 
     # chat_bot
-    path("api/chat/", include("AWS.chat.urls")),
+    path("api/chatbot/", include("AWS.chat.urls")),
 ]
