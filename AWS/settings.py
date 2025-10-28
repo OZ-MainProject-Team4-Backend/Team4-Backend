@@ -39,11 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    #test
+    # test
     "pytest",
     "pytest-cov",
-
     # users
     "AWS.users",
     # JWT
