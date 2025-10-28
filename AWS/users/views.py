@@ -4,13 +4,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
 from django.contrib.sites import requests
 from django.utils import timezone
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .models import EmailVerification, User, Token, SocialAccount
-from .serializers import UserSerializer, TokenSerializer
+from .models import EmailVerification, SocialAccount, Token, User
+from .serializers import TokenSerializer, UserSerializer
 from .utils.email_token import confirm_email_token
 
 NAVER_CLIENT_ID = "tzzCqjUzSr8JarrORWRF"
@@ -29,8 +29,10 @@ class SignUpView(generics.CreateAPIView):
                 {"error": "이메일 중복"}, status=status.HTTP_400_BAD_REQUEST
             )
         serializer.save()
-        return Response({"message":"회원가입 완료. 이어서 이메일 인증을 진행하세요."},
-        status=status.HTTP_201_CREATED,)
+        return Response(
+            {"message": "회원가입 완료. 이어서 이메일 인증을 진행하세요."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class VerifyEmailView(generics.GenericAPIView):
@@ -107,8 +109,8 @@ class LoginView(generics.GenericAPIView):
 
         Token.objects.create(
             user=user,
-            access_jwt= str(access),
-            refresh_jwt = str(refresh),
+            access_jwt=str(access),
+            refresh_jwt=str(refresh),
             access_expires_at=timezone.now() + timezone.timedelta(minutes=5),
             refresh_expires_at=timezone.now() + timezone.timedelta(days=7),
         )
@@ -123,22 +125,33 @@ class LogoutView(generics.GenericAPIView):
         try:
             refresh_token = request.data.get("refresh")
             if not refresh_token:
-                return Response({"logoutSuccess": False, "error": "refresh 토큰이 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"logoutSuccess": False, "error": "refresh 토큰이 필요합니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             token = RefreshToken(refresh_token)
             token.blacklist()
 
             # DB상의 토큰 revoked 처리 (가능하면 일치 토큰을 찾아 무효화)
-            db_token = Token.objects.filter(refresh_jwt=refresh_token, revoked=False).first()
+            db_token = Token.objects.filter(
+                refresh_jwt=refresh_token, revoked=False
+            ).first()
             if db_token:
                 db_token.revoked = True
                 db_token.save()
 
             return Response({"logoutSuccess": True}, status=status.HTTP_200_OK)
         except TokenError:
-            return Response({"logoutSuccess": False, "error": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"logoutSuccess": False, "error": "유효하지 않은 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except Exception as e:
-            return Response({"logoutSuccess": False, "error": f"서버 오류: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"logoutSuccess": False, "error": f"서버 오류: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
@@ -160,27 +173,32 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         serializer.save()
         return Response({"update": True, "user": serializer.data})
 
+
 class DeleteUserView(generics.DestroyAPIView):
-    permission_classes =  [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         user = request.user
         user.deleted_at = timezone.now()
         user.save()
-        return Response({"message":"회원 탈퇴 처리 완료"},status=status.HTTP_200_OK)
+        return Response({"message": "회원 탈퇴 처리 완료"}, status=status.HTTP_200_OK)
+
 
 class TokenListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TokenSerializer
     queryset = Token.objects.all().order_by("-created_at")
 
-class TokenRevokeView(generics.RetrieveAPIView):
-    permission_classes =  [permissions.IsAdminUser]
 
-    def post(self,request,*args,**kwargs):
-        token_id =request.data.get("token_id")
+class TokenRevokeView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        token_id = request.data.get("token_id")
         if not token_id:
-            return Response({"에러":"token_id 필요합니다"},status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"에러": "token_id 필요합니다"}, status=status.HTTP_400_BAD_REQUEST
+            )
         try:
             t = Token.objects.get(id=token_id)
             t.revoked = True
@@ -189,15 +207,14 @@ class TokenRevokeView(generics.RetrieveAPIView):
         except Token.DoesNotExist:
             return Response({"error": "토큰 없음"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class NaverLoginView(generics.GenericAPIView):
-    def post(self,request,*args,**kwargs):
+    def post(self, request, *args, **kwargs):
         code = request.data.get("code")
         state = request.data.get("state")
         if not code or not state:
             return Response(
-                {
-                    "에러":"code/state 누락"
-                },
+                {"에러": "code/state 누락"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         token_url = "https://nid.naver.com/oauth2.0/token"

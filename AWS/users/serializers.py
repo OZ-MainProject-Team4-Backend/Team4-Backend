@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
-from .models import User,SocialAccount,Token
+from .models import SocialAccount, Token, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -40,6 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
         if "password" in validated_data:
             instance.password = make_password(validated_data.pop("password"))
         return super().update(instance, validated_data)
+
 
 class SocialAccountSerializer(serializers.ModelSerializer):
     class Meta:
