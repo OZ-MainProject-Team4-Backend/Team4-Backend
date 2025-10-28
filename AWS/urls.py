@@ -42,4 +42,6 @@ urlpatterns = [
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # users 앱의 URL 포함
     path("api/users/", include("AWS.users.urls")),
+    # chat_bot
+    path("api/chatbot/", include("AWS.chat.urls")),
 ]
