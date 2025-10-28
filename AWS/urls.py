@@ -44,4 +44,6 @@ urlpatterns = [
     path("api/users/", include("AWS.users.urls")),
     # chat_bot
     path("api/chatbot/", include("AWS.chat.urls")),
+    # weather 앱
+    path("api/weather/", include("AWS.weather.urls")),
 ]
