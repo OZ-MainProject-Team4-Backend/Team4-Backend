@@ -1,7 +1,8 @@
+import secrets
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.sites import requests
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -9,9 +10,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from .models import EmailVerification, SocialAccount, Token, User
-from .serializers import TokenSerializer, UserSerializer
+from .models import EmailVerification, PasswordResetToken, SocialAccount, Token, User
+from .serializers import (
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer,
+    TokenSerializer,
+    UserSerializer,
+)
 from .utils.email_token import confirm_email_token
+from .utils.send_email import send_password_reset_email
 
 NAVER_CLIENT_ID = "tzzCqjUzSr8JarrORWRF"
 NAVER_CLIENT_SECRET = "BOff1kCr8Y"
@@ -293,3 +300,70 @@ class AdminOnlyView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         return Response({"message": "관리자 전용 접근 성공"}, status=status.HTTP_200_OK)
+
+
+class RequestPasswordResetView(generics.GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"message": "비밀번호 재설정 이메일이 발송되었습니다."},
+                status=status.HTTP_200_OK,
+            )  # 보안을 위해 사용자 존재 여부를 알리지 않음
+
+        # 기존 토큰 무효화
+        PasswordResetToken.objects.filter(user=user, is_used=False).update(is_used=True)
+
+        token_code = secrets.token_urlsafe(32)  # 32바이트 길이의 안전한 토큰 생성
+        expires_at = timezone.now() + timedelta(hours=1)  # 1시간 유효
+
+        PasswordResetToken.objects.create(
+            user=user, token=token_code, expires_at=expires_at
+        )
+
+        send_password_reset_email(user.email, token_code)
+
+        return Response(
+            {"message": "비밀번호 재설정 이메일이 발송되었습니다."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ConfirmPasswordResetView(generics.GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token_code = serializer.validated_data["token"]
+        new_password = serializer.validated_data["new_password"]
+
+        try:
+            reset_token = PasswordResetToken.objects.get(
+                token=token_code, is_used=False, expires_at__gt=timezone.now()
+            )
+        except PasswordResetToken.DoesNotExist:
+            return Response(
+                {"error": "유효하지 않거나 만료된 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = reset_token.user
+        user.password = make_password(new_password)
+        user.save()
+
+        reset_token.is_used = True  # 토큰 사용 처리
+        reset_token.save()
+
+        return Response(
+            {"message": "비밀번호가 성공적으로 재설정되었습니다."},
+            status=status.HTTP_200_OK,
+        )
