@@ -45,4 +45,3 @@ urlpatterns = [
     # chat_bot
     path("api/chatbot/", include("AWS.chat.urls")),
 ]
-

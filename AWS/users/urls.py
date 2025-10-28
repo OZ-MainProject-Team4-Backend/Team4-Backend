@@ -29,4 +29,3 @@ urlpatterns = [
     path("admin/tokens/revoke/", TokenRevokeView.as_view(), name="token-revoke"),
     path("admin/test/", AdminOnlyView.as_view(), name="admin-only-test"),
 ]
-
