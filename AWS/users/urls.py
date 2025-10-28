@@ -1,7 +1,18 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import LoginView, LogoutView, SignUpView, UserProfileView, VerifyEmailView
+from .views import (
+    AdminOnlyView,
+    DeleteUserView,
+    LoginView,
+    LogoutView,
+    NaverLoginView,
+    SignUpView,
+    TokenListView,
+    TokenRevokeView,
+    UserProfileView,
+    VerifyEmailView,
+)
 
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
@@ -9,5 +20,12 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("profile/", UserProfileView.as_view(), name="user-profile"),
+    path("delete/", DeleteUserView.as_view(), name="user-delete"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # Social Login
+    path("login/naver/", NaverLoginView.as_view(), name="naver-login"),
+    # Admin
+    path("admin/tokens/", TokenListView.as_view(), name="token-list"),
+    path("admin/tokens/revoke/", TokenRevokeView.as_view(), name="token-revoke"),
+    path("admin/test/", AdminOnlyView.as_view(), name="admin-only-test"),
 ]
