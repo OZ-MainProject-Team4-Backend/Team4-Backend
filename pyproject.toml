@@ -16,4 +16,5 @@ dependencies = [
     "whitenoise",
     "psycopg[binary]",
     "ruff>=0.14.0",
+    "itsdangerous>=2.2.0",
 ]
