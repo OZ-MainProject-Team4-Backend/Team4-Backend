@@ -1,8 +1,9 @@
 from django.core.mail import EmailMessage
 from django.conf import settings
 
+
 def send_verification_email(email, token):
-    subject = '이메일 인증을 완료해주세요.'
+    subject = "이메일 인증을 완료해주세요."
     verify_url = f"http://localhost:8000/api/auth/verify-email?token={token}"
 
     message = f"""
@@ -15,5 +16,5 @@ def send_verification_email(email, token):
     
     """
 
-    email_message = EmailMessage(subject,message,settings.DEFAULT_FROM_EMAIL,[email])
+    email_message = EmailMessage(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
     email_message.send(fail_silently=False)

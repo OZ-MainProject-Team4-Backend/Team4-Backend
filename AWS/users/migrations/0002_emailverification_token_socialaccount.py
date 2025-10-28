@@ -8,59 +8,80 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_initial'),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EmailVerification',
+            name="EmailVerification",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('email', models.EmailField(max_length=150)),
-                ('code', models.CharField(max_length=100)),
-                ('is_used', models.BooleanField(default=False)),
-                ('expires_at', models.DateTimeField()),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("email", models.EmailField(max_length=150)),
+                ("code", models.CharField(max_length=100)),
+                ("is_used", models.BooleanField(default=False)),
+                ("expires_at", models.DateTimeField()),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="users.user"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Email Verification',
-                'verbose_name_plural': 'Email Verifications',
-                'db_table': 'email_verifications',
+                "verbose_name": "Email Verification",
+                "verbose_name_plural": "Email Verifications",
+                "db_table": "email_verifications",
             },
         ),
         migrations.CreateModel(
-            name='Token',
+            name="Token",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('access_jwt', models.CharField(blank=True, max_length=500, null=True)),
-                ('refresh_jwt', models.CharField(blank=True, max_length=500, null=True)),
-                ('access_expires_at', models.DateTimeField(blank=True, null=True)),
-                ('refresh_expires_at', models.DateTimeField(blank=True, null=True)),
-                ('revoked', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("access_jwt", models.CharField(blank=True, max_length=500, null=True)),
+                (
+                    "refresh_jwt",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
+                ("access_expires_at", models.DateTimeField(blank=True, null=True)),
+                ("refresh_expires_at", models.DateTimeField(blank=True, null=True)),
+                ("revoked", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="users.user"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Token',
-                'verbose_name_plural': 'Tokens',
-                'db_table': 'tokens',
+                "verbose_name": "Token",
+                "verbose_name_plural": "Tokens",
+                "db_table": "tokens",
             },
         ),
         migrations.CreateModel(
-            name='SocialAccount',
+            name="SocialAccount",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('provider', models.CharField(max_length=20)),
-                ('provider_user_id', models.CharField(max_length=200)),
-                ('connected_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("provider", models.CharField(max_length=20)),
+                ("provider_user_id", models.CharField(max_length=200)),
+                (
+                    "connected_at",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="users.user"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Social Account',
-                'verbose_name_plural': 'Social Accounts',
-                'db_table': 'social_accounts',
-                'unique_together': {('provider', 'provider_user_id')},
+                "verbose_name": "Social Account",
+                "verbose_name_plural": "Social Accounts",
+                "db_table": "social_accounts",
+                "unique_together": {("provider", "provider_user_id")},
             },
         ),
     ]

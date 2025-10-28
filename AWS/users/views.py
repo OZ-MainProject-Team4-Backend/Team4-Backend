@@ -20,34 +20,42 @@ class SignUpView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        if User.objects.filter(email=serializer.validated_data['email']).exists():
-            return Response({"error": "이메일 중복"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=serializer.validated_data["email"]).exists():
+            return Response(
+                {"error": "이메일 중복"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         serializer.save()
 
-        return Response({"message": "회원가입 완료. 이메일 인증을 진행하세요."}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "회원가입 완료. 이메일 인증을 진행하세요."},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class VerifyEmailView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         token_code = request.GET.get("token")
-        
+
         if not token_code:
-            return Response({"error": "토큰이 누락되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "토큰이 누락되었습니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             email_verification = EmailVerification.objects.get(
-                code=token_code,
-                is_used=False,
-                expires_at__gt=timezone.now()
+                code=token_code, is_used=False, expires_at__gt=timezone.now()
             )
-            
+
             user = User.objects.get(email=email_verification.email)
 
             if user.email_verified:
-                return Response({"message": "이메일이 이미 인증되었습니다."}, status=status.HTTP_200_OK)
-            
+                return Response(
+                    {"message": "이메일이 이미 인증되었습니다."},
+                    status=status.HTTP_200_OK,
+                )
+
             user.email_verified = True
             user.save()
 
@@ -55,14 +63,21 @@ class VerifyEmailView(generics.GenericAPIView):
             email_verification.save()
 
             return Response({"message": "이메일 인증 완료!"}, status=status.HTTP_200_OK)
-        
+
         except EmailVerification.DoesNotExist:
-            return Response({"error": "유효하지 않거나 만료된 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "유효하지 않거나 만료된 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except User.DoesNotExist:
-            return Response({"error": "사용자를 찾을 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "사용자를 찾을 수 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except Exception as e:
             return Response(
-                {"error": f"서버 오류: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"서버 오류: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
@@ -74,19 +89,28 @@ class LoginView(generics.GenericAPIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"error": "이메일 또는 비밀번호가 올바르지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if not check_password(password, user.password):
-            return Response({"error": "이메일 또는 비밀번호가 올바르지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "이메일 또는 비밀번호가 올바르지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if not user.email_verified:
-            return Response({"error": "이메일 인증이 필요합니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "이메일 인증이 필요합니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         refresh = RefreshToken.for_user(user)
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"access": str(refresh.access_token), "refresh": str(refresh)},
+            status=status.HTTP_200_OK,
+        )
 
 
 class LogoutView(generics.GenericAPIView):
@@ -97,9 +121,15 @@ class LogoutView(generics.GenericAPIView):
             token.blacklist()
             return Response({"logoutSuccess": True}, status=status.HTTP_200_OK)
         except TokenError:
-            return Response({"logoutSuccess": False, "error": "유효하지 않은 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"logoutSuccess": False, "error": "유효하지 않은 토큰입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except Exception as e:
-            return Response({"logoutSuccess": False, "error": f"서버 오류: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"logoutSuccess": False, "error": f"서버 오류: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):

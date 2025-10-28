@@ -8,29 +8,28 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('email', models.EmailField(max_length=150, unique=True)),
-                ('password', models.CharField(max_length=255)),
-                ('name', models.CharField(blank=True, max_length=100, null=True)),
-                ('nickname', models.CharField(blank=True, max_length=50, null=True)),
-                ('phone', models.CharField(blank=True, max_length=20, null=True)),
-                ('gender', models.CharField(blank=True, max_length=10, null=True)),
-                ('email_verified', models.BooleanField(default=False)),
-                ('deleted_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('update_at', models.DateTimeField(auto_now=True)),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("email", models.EmailField(max_length=150, unique=True)),
+                ("password", models.CharField(max_length=255)),
+                ("name", models.CharField(blank=True, max_length=100, null=True)),
+                ("nickname", models.CharField(blank=True, max_length=50, null=True)),
+                ("phone", models.CharField(blank=True, max_length=20, null=True)),
+                ("gender", models.CharField(blank=True, max_length=10, null=True)),
+                ("email_verified", models.BooleanField(default=False)),
+                ("deleted_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ("update_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name': 'User',
-                'verbose_name_plural': 'Users',
-                'db_table': 'users',
+                "verbose_name": "User",
+                "verbose_name_plural": "Users",
+                "db_table": "users",
             },
         ),
     ]
