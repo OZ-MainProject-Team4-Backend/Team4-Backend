@@ -1,6 +1,8 @@
 from django.db import models
+
 from AWS.users.models import User
 from AWS.weather.models import WeatherData
+
 
 class AIModelSetting(models.Model):
     name = models.CharField(max_length=150)
