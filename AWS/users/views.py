@@ -1,15 +1,14 @@
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
+from django.utils import timezone
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
+from .models import EmailVerification, User
 from .serializers import UserSerializer
 from .utils.email_token import confirm_email_token
-
-from django.utils import timezone
-from .models import User, EmailVerification
-
 
 User = get_user_model()
 

@@ -1,5 +1,5 @@
-from django.core.mail import EmailMessage
 from django.conf import settings
+from django.core.mail import EmailMessage
 
 
 def send_verification_email(email, token):

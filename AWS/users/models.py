@@ -1,8 +1,10 @@
+from datetime import timedelta  # 이 라인을 추가합니다.
+
 from django.db import models
-from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from datetime import timedelta  # 이 라인을 추가합니다.
+from django.utils import timezone
+
 from .utils.email_token import generate_email_token
 from .utils.send_email import send_verification_email
 
