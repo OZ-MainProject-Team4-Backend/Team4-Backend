@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # users
     "AWS.users",
+    "AWS.weather",
     "AWS.recommend",
     # JWT
     "rest_framework",
