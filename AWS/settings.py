@@ -41,12 +41,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # users
     "AWS.users",
+    "AWS.weather",
+    "AWS.recommend",
+    "AWS.diary",
     # JWT
     "rest_framework",
     "rest_framework_simplejwt",
     # 배포
     "drf_spectacular",
     "drf_yasg",
+    # chat_bot
+    "AWS.chat",
 ]
 
 MIDDLEWARE = [
@@ -119,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
